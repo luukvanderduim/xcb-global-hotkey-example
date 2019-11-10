@@ -1,18 +1,20 @@
-[package]
-name = "xcbgrabkey"
-version = "0.1.0"
-authors = ["Luuk van der Duim <luukvanderduim@gmail.com>"]
-edition = "2018"
+[dependencies]
+libc = '0.2.65'
+x11 = '2.18'
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies.xcb]
-version = "0.8.2"
-features = [ "xkb", "thread"]
+features = [
+    'xkb',
+    'thread',
+]
+version = '0.8.2'
 
 [dependencies.xcb-util]
-version = "0.2.1"
-features = [ "keysyms"]
+features = ['keysyms']
+version = '0.2.1'
 
-[dependencies]
-libc = "0.2.65"
-x11 = "2.18"
+[package]
+authors = ['Luuk van der Duim <luukvanderduim@gmail.com>']
+edition = '2018'
+name = 'xcb-global-hotkey-example'
+version = '0.1.0'

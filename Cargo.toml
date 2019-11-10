@@ -1,20 +1,14 @@
-[dependencies]
-libc = '0.2.65'
-x11 = '2.18'
-
-[dependencies.xcb]
-features = [
-    'xkb',
-    'thread',
-]
-version = '0.8.2'
-
-[dependencies.xcb-util]
-features = ['keysyms']
-version = '0.2.1'
-
 [package]
 authors = ['Luuk van der Duim <luukvanderduim@gmail.com>']
 edition = '2018'
 name = 'xcb-global-hotkey-example'
 version = '0.1.0'
+
+[dependencies]
+
+[dependencies.xcb]
+features = [  'xkb' ]
+version = "0.8.2"
+
+
+

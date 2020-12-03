@@ -1,14 +1,8 @@
 [package]
 authors = ['Luuk van der Duim <luukvanderduim@gmail.com>']
 edition = '2018'
-name = 'xcb-global-hotkey-example'
-version = '0.1.0'
+name = "global-hotkey-example"
+version = "0.2.0"
 
 [dependencies]
-
-[dependencies.xcb]
-features = [  'xkb' ]
-version = "0.8.2"
-
-
-
+x11rb = { version = "0.7.0", features = ["xkb"]} 

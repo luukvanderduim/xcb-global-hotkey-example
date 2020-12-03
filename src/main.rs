@@ -1,27 +1,42 @@
-use xcb;
-use xcb::xproto::{MOD_MASK_ANY, GRAB_MODE_ASYNC, CW_EVENT_MASK, EVENT_MASK_KEY_PRESS, KEY_PRESS};
+use std::error::Error;
+use x11rb::{
+    connect,
+    connection::Connection,
+    protocol::{
+        xproto::{grab_key, ConnectionExt, ChangeWindowAttributesAux, EventMask, GrabMode, ModMask, Setup},
+        Event,
+    },
+};
 
-fn main() {
-    let (conn, _) = xcb::Connection::connect(None).expect("Connection failed");
-    let setup = conn.get_setup();
+fn main() -> Result<(), Box<dyn Error>> {
+    let (conn, screen_num) = connect(None)?;
+    let setup: &Setup = conn.setup();
+    let rootwindow = setup.roots[screen_num].root;
 
-
-    // A display may consist of more than one screen, all screens have a root window
-   for screen in setup.roots() {
-        xcb::grab_key_checked(&conn, true, screen.root(), MOD_MASK_ANY as u16, 96 as u8, GRAB_MODE_ASYNC as u8, GRAB_MODE_ASYNC as u8)
-                .request_check().expect("The key grab failed");
-        let valuelist = [( CW_EVENT_MASK , EVENT_MASK_KEY_PRESS)];
-        xcb::xproto::change_window_attributes_checked(&conn, screen.root(), &valuelist )
-                .request_check().expect("Change of window attributes failed");           
-   }
-
-    loop {
-         &conn.flush();
-        if let Some(ev) = (&conn).wait_for_event() {
-            if ev.response_type() & !0x80 == KEY_PRESS {
-                println!("F12!");
-                break;
-            }            
-        }
+    let kpress = ChangeWindowAttributesAux::default()
+    .event_mask(EventMask::KeyPress);
+    
+    // A Display refers to a server, A display may have more than one screen but it is not that common
+    // (Screens are not the Workspaces (desktops) as I once thought. https://unix.stackexchange.com/questions/503806/what-are-x-server-display-and-screen )
+    
+    let valid_strokemods: [u16; 4] = [2 | 16 | 4, 2 | 4, 16 | 4, 4];
+    for strokemod in valid_strokemods.iter() {
+        grab_key(&conn, false, rootwindow, *strokemod, 25, GrabMode::Async, GrabMode::Async )?
+        .check()?;
     }
+    
+
+    &mut conn.change_window_attributes(rootwindow, &kpress)?;
+    
+    &conn.flush()?;
+
+    let windowevent = &conn.wait_for_event()?;
+        
+    if let Event::KeyPress(kpe) = windowevent {
+        println!("Keycode: {}", &kpe.detail);
+    } else {
+        println!("Were we subscribed to such event?! {:?}", &windowevent);
+    }
+
+    Ok(())
 }
